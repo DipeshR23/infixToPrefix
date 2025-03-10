@@ -1,0 +1,55 @@
+#include <stdio.h>
+#include <string.h>
+#include <ctype.h>
+
+int precedency(char c) {
+    switch (c) {
+        case '^':
+            return 3;
+        case '+':
+        case '-':
+            return 1;
+        case '/':
+        case '*':
+            return 2;
+        default:
+            return 0;
+    }
+}
+
+void main() {
+    char infix[100], prestack[100], opstack[100];
+    int optop = -1, pretop = -1;
+    printf("Enter an infix expression: ");
+    fgets(infix, sizeof(infix), stdin);
+      
+    infix[strcspn(infix, "\n")] = '\0';
+    int length = strlen(infix);
+
+    for (int i = length - 1; i >= 0; i--) {
+        if (infix[i] == ')') {
+            opstack[++optop] = infix[i];
+        } else if (isalnum(infix[i])) {
+            prestack[++pretop] = infix[i];
+        } else if (infix[i] == '(') {
+            while (optop != -1 && opstack[optop] != ')') {
+                prestack[++pretop] = opstack[optop--];
+            }
+            optop--; 
+        } else {
+            while (optop != -1 && precedency(opstack[optop]) > precedency(infix[i])) {
+                prestack[++pretop] = opstack[optop--];
+            }
+            opstack[++optop] = infix[i];
+        }
+    }
+    
+    while (optop != -1) {
+        prestack[++pretop] = opstack[optop--];
+    } 
+    
+    printf("\nThe prefix expression is: ");
+    for (int i = pretop; i >= 0; i--) {
+        printf("%c", prestack[i]);
+    }
+}
